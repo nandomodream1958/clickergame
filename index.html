@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>クッキークリッカー</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>クッキークリッカー</h1>
+
+    <div id="game-container">
+        <img src="images/cookie.png" alt="クッキー" id="cookie">
+        <p>クッキー: <span id="cookie-count">0</span></p>
+        <p>焼いた合計: <span id="total-cookies-baked">0</span></p>
+    </div>
+
+    <div id="upgrades">
+        <button id="buy-grandma">おばあちゃんを雇う (コスト: 50)</button>
+        <p>おばあちゃん: <span id="grandma-count">0</span></p>
+        <p>おばあちゃんが焼いたクッキー: <span id="grandma-baked-count">0</span></p>
+        <div id="grandma-container"></div>
+    </div>
+
+    <div id="factory-upgrade">
+        <button id="buy-factory">工場を建設する (コスト: 1000)</button>
+        <p>工場: <span id="factory-count">0</span></p>
+        <p>工場で焼かれたクッキー: <span id="factory-baked-count">0</span></p>
+        <div id="factory-container"></div>
+    </div>
+
+    <div id="achievements-container">
+        <h2>実績</h2>
+        <ul id="achievement-list"></ul>
+    </div>
+
+    <div id="controls">
+        <button id="save-button">セーブ</button>
+        <button id="reset-button">リセット</button>
+    </div>
+
+    <div id="achievement-toast" class="hidden"></div>
+
+    <div id="golden-cookie" class="hidden"></div>
+    <div id="bonus-display" class="hidden"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>クッキークリッカー</title>
+    <style>
+        /* --- Reset and Basic Styles --- */
+        #clicker-game-wrapper * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        #clicker-game-wrapper {
+            font-family: 'Helvetica Neue', sans-serif;
+            text-align: center;
+            background-color: #f4f4f9;
+            color: #333;
+            padding: 10px;
+            max-width: 600px; /* Max width for the container */
+            margin: 0 auto;
+        }
+
+        /* --- Typography --- */
+        #clicker-game-wrapper h1 {
+            color: #8B4513; /* SaddleBrown */
+            text-shadow: 1px 1px 2px #ccc;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+
+        #clicker-game-wrapper h2 {
+            color: #495057;
+            font-size: 1.4em;
+            margin-bottom: 10px;
+        }
+
+        #clicker-game-wrapper p {
+            font-size: 1.1em;
+            margin: 8px 0;
+        }
+
+        /* --- Layout Containers --- */
+        #clicker-game-wrapper #game-container,
+        #clicker-game-wrapper #upgrades,
+        #clicker-game-wrapper #factory-upgrade,
+        #clicker-game-wrapper #achievements-container,
+        #clicker-game-wrapper #controls {
+            background-color: white;
+            margin: 15px auto;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        /* --- Interactive Elements --- */
+        #clicker-game-wrapper #cookie {
+            width: 150px;
+            cursor: pointer;
+            transition: transform 0.1s;
+            -webkit-user-drag: none; /* Disable image dragging */
+            user-select: none;
+        }
+
+        #clicker-game-wrapper #cookie:active {
+            transform: scale(0.9);
+        }
+
+        #clicker-game-wrapper button {
+            background-color: #007bff; /* Bright Blue */
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 1em;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 90%;
+            max-width: 300px;
+            margin-top: 5px;
+        }
+
+        #clicker-game-wrapper button:hover {
+            background-color: #0056b3; /* Darker Blue */
+        }
+
+        #clicker-game-wrapper #controls button {
+            background-color: #6c757d; /* Gray */
+            width: 45%;
+        }
+
+        #clicker-game-wrapper #controls button:hover {
+            background-color: #5a6268; /* Darker Gray */
+        }
+
+        /* --- Counters --- */
+        #clicker-game-wrapper #cookie-count,
+        #clicker-game-wrapper #grandma-count,
+        #clicker-game-wrapper #factory-count,
+        #clicker-game-wrapper #grandma-baked-count,
+        #clicker-game-wrapper #factory-baked-count,
+        #clicker-game-wrapper #total-cookies-baked {
+            color: #0056b3; /* Dark Blue */
+            font-weight: bold;
+        }
+
+        /* --- Image Containers --- */
+        #clicker-game-wrapper #grandma-container,
+        #clicker-game-wrapper #factory-container {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            min-height: 20px;
+        }
+
+        #clicker-game-wrapper .grandma-img {
+            width: 50px;
+            height: 50px;
+            margin: 2px;
+        }
+
+        #clicker-game-wrapper .factory-img {
+            width: 70px;
+            height: 70px;
+            margin: 2px;
+        }
+
+        /* --- Floating Effects --- */
+        #clicker-game-wrapper .plus-one {
+            position: absolute; /* Changed to absolute */
+            font-size: 1.5em;
+            color: white;
+            text-shadow: 1px 1px 3px black;
+            animation: float-up 1s ease-out forwards;
+            pointer-events: none;
+            user-select: none;
+            z-index: 3000;
+        }
+
+        @keyframes float-up {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-50px); }
+        }
+
+        /* --- Achievements --- */
+        #clicker-game-wrapper #achievement-list {
+            list-style-type: none;
+            padding: 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        #clicker-game-wrapper #achievement-list li {
+            background-color: #e9ecef;
+            margin: 5px 0;
+            padding: 8px;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+
+        #clicker-game-wrapper #achievement-list li.unlocked {
+            background-color: #d4edda; /* Light Green */
+            color: #155724; /* Dark Green */
+        }
+
+        /* --- Pop-up Notifications --- */
+        #clicker-game-wrapper #achievement-toast,
+        #clicker-game-wrapper #bonus-display {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            z-index: 10000;
+            opacity: 0;
+            transition: opacity 0.5s, bottom 0.5s;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+        
+        #clicker-game-wrapper #achievement-toast {
+             background-color: #28a745; /* Green */
+        }
+        
+        #clicker-game-wrapper #bonus-display {
+            background-color: rgba(255, 215, 0, 0.9); /* Gold */
+            color: #4a2c00;
+            border: 2px solid gold;
+        }
+
+        #clicker-game-wrapper #achievement-toast.show,
+        #clicker-game-wrapper #bonus-display.show {
+            opacity: 1;
+            bottom: 40px;
+        }
+
+        /* --- Golden Cookie --- */
+        #clicker-game-wrapper #golden-cookie {
+            position: absolute; /* Changed to absolute */
+            width: 50px;
+            height: 50px;
+            background-size: contain;
+            cursor: pointer;
+            z-index: 2000;
+            transition: opacity 0.5s;
+            filter: drop-shadow(0 0 8px gold);
+            display: none; /* Initially hidden */
+        }
+    </style>
+</head>
+<body>
+
+<div id="clicker-game-wrapper">
+    <h1>クッキークリッカー</h1>
+
+    <div id="game-container">
+        <img src="YOUR_WORDPRESS_UPLOADS_URL/cookie.png" alt="クッキー" id="cookie">
+        <p>クッキー: <span id="cookie-count">0</span></p>
+        <p>焼いた合計: <span id="total-cookies-baked">0</span></p>
+    </div>
+
+    <div id="upgrades">
+        <button id="buy-grandma">おばあちゃんを雇う (コスト: 50)</button>
+        <p>おばあちゃん: <span id="grandma-count">0</span></p>
+        <p>おばあちゃんが焼いたクッキー: <span id="grandma-baked-count">0</span></p>
+        <div id="grandma-container"></div>
+    </div>
+
+    <div id="factory-upgrade">
+        <button id="buy-factory">工場を建設する (コスト: 1000)</button>
+        <p>工場: <span id="factory-count">0</span></p>
+        <p>工場で焼かれたクッキー: <span id="factory-baked-count">0</span></p>
+        <div id="factory-container"></div>
+    </div>
+
+    <div id="achievements-container">
+        <h2>実績</h2>
+        <ul id="achievement-list"></ul>
+    </div>
+
+    <div id="controls">
+        <button id="save-button">セーブ</button>
+        <button id="reset-button">リセット</button>
+    </div>
+
+    <div id="achievement-toast"></div>
+    <div id="bonus-display"></div>
+    <div id="golden-cookie"></div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    // --- Asset Paths (IMPORTANT: CHANGE THESE) ---
+    const imageUrls = {
+        cookie: 'YOUR_WORDPRESS_UPLOADS_URL/cookie.png',
+        grandma: 'YOUR_WORDPRESS_UPLOADS_URL/grandma.png',
+        factory: 'YOUR_WORDPRESS_UPLOADS_URL/factory.png',
+        goldenCookie: 'YOUR_WORDPRESS_UPLOADS_URL/golden_cookie.png'
+    };
+    const soundUrls = {
+        click: 'YOUR_WORDPRESS_UPLOADS_URL/click.mp3',
+        buy: 'YOUR_WORDPRESS_UPLOADS_URL/buy.mp3',
+        goldenClick: 'YOUR_WORDPRESS_UPLOADS_URL/golden_click.mp3'
+    };
+
+    // --- DOM Element Getters ---
+    const wrapper = document.getElementById('clicker-game-wrapper');
+    const cookie = document.getElementById('cookie');
+    const cookieCount = document.getElementById('cookie-count');
+    const totalCookiesBakedDisplay = document.getElementById('total-cookies-baked');
+    const buyGrandma = document.getElementById('buy-grandma');
+    const grandmaCount = document.getElementById('grandma-count');
+    const grandmaBakedCount = document.getElementById('grandma-baked-count');
+    const grandmaContainer = document.getElementById('grandma-container');
+    const buyFactory = document.getElementById('buy-factory');
+    const factoryCount = document.getElementById('factory-count');
+    const factoryBakedCount = document.getElementById('factory-baked-count');
+    const factoryContainer = document.getElementById('factory-container');
+    const saveButton = document.getElementById('save-button');
+    const resetButton = document.getElementById('reset-button');
+    const achievementList = document.getElementById('achievement-list');
+    const achievementToast = document.getElementById('achievement-toast');
+    const goldenCookie = document.getElementById('golden-cookie');
+    const bonusDisplay = document.getElementById('bonus-display');
+
+    // --- Game State Variables ---
+    let count = 0, totalClicks = 0, totalCookiesBaked = 0;
+    let grandma = 0, grandmaCost = 50, grandmaBaked = 0;
+    let factory = 0, factoryCost = 1000, factoryBaked = 0;
+    let cps = 0, bonusMultiplier = 1;
+
+    // --- Achievements (Master Definition) ---
+    const achievements = {
+        'click1': { name: 'はじめの一歩', description: '初めてクッキーをクリックする', unlocked: false },
+        'click100': { name: 'クリッカーの卵', description: '100回クリックする', unlocked: false },
+        'bake1000': { name: 'クッキーベイカー', description: '合計で1,000枚のクッキーを焼く', unlocked: false },
+        'bake1M': { name: 'クッキー起業家', description: '合計で100万枚のクッキーを焼く', unlocked: false },
+        'bake1B': { name: 'クッキー大君', description: '合計で1億枚のクッキーを焼く', unlocked: false },
+        'bake10B': { name: 'クッキー惑星', description: '合計で10億枚のクッキーを焼く', unlocked: false },
+        'bake100B': { name: 'クッキー銀河', description: '合計で100億枚のクッキーを焼く', unlocked: false },
+        'grandma1': { name: 'おばあちゃん登場', description: '初めておばあちゃんを雇う', unlocked: false },
+        'grandma10': { name: 'おばあちゃん軍団', description: 'おばあちゃんを10人雇う', unlocked: false },
+        'factory1': { name: '近代化', description: '初めて工場を建設する', unlocked: false },
+        'gold1': { name: '幸運', description: '初めてゴールデンクッキーをクリックする', unlocked: false },
+    };
+
+    // --- Core Game Logic ---
+    function loadGame() {
+        const savedGame = localStorage.getItem('wpClickerGameSave');
+        if (savedGame) {
+            const gameState = JSON.parse(savedGame);
+            count = gameState.count || 0;
+            totalClicks = gameState.totalClicks || 0;
+            totalCookiesBaked = gameState.totalCookiesBaked || 0;
+            grandma = gameState.grandma || 0;
+            grandmaCost = gameState.grandmaCost || 50;
+            grandmaBaked = gameState.grandmaBaked || 0;
+            factory = gameState.factory || 0;
+            factoryCost = gameState.factoryCost || 1000;
+            factoryBaked = gameState.factoryBaked || 0;
+            if (gameState.achievements) {
+                for (const id in achievements) {
+                    if (gameState.achievements[id]) {
+                        achievements[id].unlocked = gameState.achievements[id].unlocked;
+                    }
+                }
+            }
+        }
+    }
+
+    function saveGame() {
+        const gameState = {
+            count, totalClicks, totalCookiesBaked, grandma, grandmaCost, grandmaBaked, factory, factoryCost, factoryBaked, achievements
+        };
+        localStorage.setItem('wpClickerGameSave', JSON.stringify(gameState));
+    }
+
+    function resetGame() {
+        if (confirm("本当にリセットしますか？")) {
+            localStorage.removeItem('wpClickerGameSave');
+            location.reload();
+        }
+    }
+
+    function calculateCPS() {
+        const baseCps = (grandma * 1) + (factory * 10);
+        cps = baseCps * bonusMultiplier;
+    }
+
+    function produce() {
+        calculateCPS();
+        const production = cps / 10;
+        count += production;
+        totalCookiesBaked += production;
+        grandmaBaked += (grandma * bonusMultiplier) / 10;
+        factoryBaked += (factory * 10 * bonusMultiplier) / 10;
+        checkAchievements();
+    }
+
+    // --- UI Update & Display Logic ---
+    function update() {
+        cookieCount.textContent = Math.floor(count).toLocaleString();
+        totalCookiesBakedDisplay.textContent = Math.floor(totalCookiesBaked).toLocaleString();
+        grandmaCount.textContent = grandma;
+        grandmaBakedCount.textContent = Math.floor(grandmaBaked).toLocaleString();
+        buyGrandma.textContent = `おばあちゃんを雇う (コスト: ${Math.ceil(grandmaCost).toLocaleString()})`;
+        factoryCount.textContent = factory;
+        factoryBakedCount.textContent = Math.floor(factoryBaked).toLocaleString();
+        buyFactory.textContent = `工場を建設する (コスト: ${Math.ceil(factoryCost).toLocaleString()})`;
+    }
+
+    function addGrandmaImage() {
+        const grandmaImg = document.createElement('img');
+        grandmaImg.src = imageUrls.grandma;
+        grandmaImg.className = 'grandma-img';
+        grandmaContainer.appendChild(grandmaImg);
+    }
+
+    function addFactoryImage() {
+        const factoryImg = document.createElement('img');
+        factoryImg.src = imageUrls.factory;
+        factoryImg.className = 'factory-img';
+        factoryContainer.appendChild(factoryImg);
+    }
+
+    function showPlusOne(e) {
+        const plusOne = document.createElement('div');
+        plusOne.textContent = '+1';
+        plusOne.className = 'plus-one';
+        // Position relative to the wrapper, not the viewport
+        const rect = wrapper.getBoundingClientRect();
+        plusOne.style.left = `${e.clientX - rect.left}px`;
+        plusOne.style.top = `${e.clientY - rect.top}px`;
+        wrapper.appendChild(plusOne);
+        setTimeout(() => plusOne.remove(), 1000);
+    }
+
+    // --- Event Listeners ---
+    cookie.addEventListener('click', (e) => {
+        count++;
+        totalClicks++;
+        new Audio(soundUrls.click).play().catch(err => {});
+        showPlusOne(e);
+        checkAchievement('click1');
+    });
+
+    buyGrandma.addEventListener('click', () => {
+        if (count >= grandmaCost) {
+            count -= grandmaCost;
+            grandma++;
+            grandmaCost = Math.ceil(grandmaCost * 1.15);
+            new Audio(soundUrls.buy).play().catch(err => {});
+            addGrandmaImage();
+        }
+    });
+
+    buyFactory.addEventListener('click', () => {
+        if (count >= factoryCost) {
+            count -= factoryCost;
+            factory++;
+            factoryCost = Math.ceil(factoryCost * 1.2);
+            new Audio(soundUrls.buy).catch(err => {});
+            addFactoryImage();
+        }
+    });
+
+    saveButton.addEventListener('click', () => {
+        saveGame();
+        alert("ゲームをセーブしました！");
+    });
+
+    resetButton.addEventListener('click', resetGame);
+
+    goldenCookie.addEventListener('click', () => {
+        new Audio(soundUrls.goldenClick).play().catch(err => {});
+        checkAchievement('gold1');
+        activateGoldenCookieBonus();
+        goldenCookie.style.display = 'none';
+    });
+
+    // --- Achievement Logic ---
+    function checkAchievement(id) {
+        if (achievements[id] && !achievements[id].unlocked) {
+            unlockAchievement(id);
+        }
+    }
+
+    function checkAchievements() {
+        if (totalClicks >= 100) checkAchievement('click100');
+        if (totalCookiesBaked >= 1000) checkAchievement('bake1000');
+        if (totalCookiesBaked >= 1000000) checkAchievement('bake1M');
+        if (totalCookiesBaked >= 100000000) checkAchievement('bake1B');
+        if (totalCookiesBaked >= 1000000000) checkAchievement('bake10B');
+        if (totalCookiesBaked >= 10000000000) checkAchievement('bake100B');
+        if (grandma >= 1) checkAchievement('grandma1');
+        if (grandma >= 10) checkAchievement('grandma10');
+        if (factory >= 1) checkAchievement('factory1');
+    }
+
+    function unlockAchievement(id) {
+        achievements[id].unlocked = true;
+        showToast(achievements[id].name, 'achievement');
+        updateAchievementList();
+    }
+
+    function showToast(message, type) {
+        const toast = (type === 'achievement') ? achievementToast : bonusDisplay;
+        toast.textContent = (type === 'achievement') ? `実績解除: ${message}` : message;
+        toast.className = 'show';
+        setTimeout(() => {
+            toast.className = '';
+        }, 3000);
+    }
+
+    function updateAchievementList() {
+        if (!achievementList) return;
+        achievementList.innerHTML = '';
+        for (const id in achievements) {
+            const ach = achievements[id];
+            const li = document.createElement('li');
+            li.textContent = `${ach.name}: ${ach.description}`;
+            if (ach.unlocked) li.classList.add('unlocked');
+            achievementList.appendChild(li);
+        }
+    }
+
+    // --- Golden Cookie Logic ---
+    function setupGoldenCookie() {
+        const minTime = 60 * 1000, maxTime = 180 * 1000;
+        const randomTime = Math.random() * (maxTime - minTime) + minTime;
+        setTimeout(() => {
+            showGoldenCookie();
+            setupGoldenCookie();
+        }, randomTime);
+    }
+
+    function showGoldenCookie() {
+        const rect = wrapper.getBoundingClientRect();
+        const x = Math.random() * (rect.width - 60);
+        const y = Math.random() * (rect.height - 60);
+        goldenCookie.style.left = `${x}px`;
+        goldenCookie.style.top = `${y}px`;
+        goldenCookie.style.display = 'block';
+        setTimeout(() => {
+            goldenCookie.style.display = 'none';
+        }, 10000);
+    }
+
+    function activateGoldenCookieBonus() {
+        const bonuses = ['frenzy', 'lucky'];
+        const randomBonus = bonuses[Math.floor(Math.random() * bonuses.length)];
+
+        if (randomBonus === 'frenzy') {
+            bonusMultiplier = 7;
+            showToast(`生産フィーバー！ (x7 for 77s)`, 'bonus');
+            setTimeout(() => {
+                bonusMultiplier = 1;
+            }, 77000);
+        } else if (randomBonus === 'lucky') {
+            calculateCPS();
+            const reward = Math.min((cps / bonusMultiplier) * 900, count * 0.15) + 13;
+            count += reward;
+            showToast(`ラッキー！ +${Math.floor(reward).toLocaleString()}クッキー`, 'bonus');
+        }
+    }
+
+    // --- Initialization ---
+    function init() {
+        // Set initial image sources
+        cookie.src = imageUrls.cookie;
+        goldenCookie.style.backgroundImage = `url(${imageUrls.goldenCookie})`;
+
+        loadGame();
+        for (let i = 0; i < grandma; i++) addGrandmaImage();
+        for (let i = 0; i < factory; i++) addFactoryImage();
+        updateAchievementList();
+        setupGoldenCookie();
+    }
+
+    // --- Game Loop ---
+    setInterval(() => {
+        produce();
+        update();
+    }, 100);
+    setInterval(saveGame, 30000);
+
+    init();
+});
+</script>
+
+</body>
+</html>
