@@ -1,1 +1,1 @@
-Initial commit: Add all game files
+Fix: All counters now update correctly

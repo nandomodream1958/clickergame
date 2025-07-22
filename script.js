@@ -1,4 +1,4 @@
-// Clicker Game v1.3 - Save Compatibility Fix
+// Clicker Game v1.4 - All Counters Fix
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'click1': { name: 'はじめの一歩', description: '初めてクッキーをクリックする', unlocked: false },
         'click100': { name: 'クリッカーの卵', description: '100回クリックする', unlocked: false },
         'bake1000': { name: 'クッキーベイカー', description: '合計で1,000枚のクッキーを焼く', unlocked: false },
-        'bake1M': { name: 'クッキー起業家', description: '合計で100万枚のクッキーを焼く', unlocked: false },
+        'bake1M': { name: 'クッキー起業家', description: '合計で100万枚のクッキーを焼lく', unlocked: false },
         'bake1B': { name: 'クッキー大君', description: '合計で1億枚のクッキーを焼く', unlocked: false },
         'bake10B': { name: 'クッキー惑星', description: '合計で10億枚のクッキーを焼く', unlocked: false },
         'bake100B': { name: 'クッキー銀河', description: '合計で100億枚のクッキーを焼く', unlocked: false },
@@ -64,16 +64,13 @@ document.addEventListener('DOMContentLoaded', () => {
             factoryCost = gameState.factoryCost || 1000;
             factoryBaked = gameState.factoryBaked || 0;
 
-            // --- THIS IS THE FIX ---
-            // Safely merge achievement progress from save file
             if (gameState.achievements) {
-                for (const id in gameState.achievements) {
-                    if (achievements[id]) { // If achievement from save exists in master list
+                for (const id in achievements) {
+                    if (gameState.achievements[id]) {
                         achievements[id].unlocked = gameState.achievements[id].unlocked;
                     }
                 }
             }
-            // -----------------------
         }
     }
 
@@ -98,24 +95,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function produce() {
         calculateCPS();
-        const production = cps / 10;
+        const production = cps / 10; // Called every 100ms
         count += production;
         totalCookiesBaked += production;
         grandmaBaked += (grandma * bonusMultiplier) / 10;
         factoryBaked += (factory * 10 * bonusMultiplier) / 10;
         checkAchievements();
+        update(); // Ensure update is called after production
     }
 
     // --- UI Update & Display Logic ---
     function update() {
-        cookieCount.textContent = Math.floor(count);
-        totalCookiesBakedDisplay.textContent = Math.floor(totalCookiesBaked);
-        grandmaCount.textContent = grandma;
-        grandmaBakedCount.textContent = Math.floor(grandmaBaked);
-        buyGrandma.textContent = `おばあちゃんを雇う (コスト: ${grandmaCost})`;
-        factoryCount.textContent = factory;
-        factoryBakedCount.textContent = Math.floor(factoryBaked);
-        buyFactory.textContent = `工場を建設する (コスト: ${factoryCost})`;
+        cookieCount.textContent = Math.floor(count).toLocaleString();
+        totalCookiesBakedDisplay.textContent = Math.floor(totalCookiesBaked).toLocaleString();
+        grandmaCount.textContent = grandma.toLocaleString();
+        grandmaBakedCount.textContent = Math.floor(grandmaBaked).toLocaleString();
+        buyGrandma.textContent = `おばあちゃんを雇う (コスト: ${Math.ceil(grandmaCost).toLocaleString()})`;
+        factoryCount.textContent = factory.toLocaleString();
+        factoryBakedCount.textContent = Math.floor(factoryBaked).toLocaleString();
+        buyFactory.textContent = `工場を建設する (コスト: ${Math.ceil(factoryCost).toLocaleString()})`;
     }
 
     function addGrandmaImage() {
@@ -146,9 +144,11 @@ document.addEventListener('DOMContentLoaded', () => {
     cookie.addEventListener('click', (e) => {
         count++;
         totalClicks++;
+        totalCookiesBaked++; // Manual clicks also add to total baked
         new Audio('sounds/click.mp3').play().catch(err => {});
         showPlusOne(e);
         checkAchievement('click1');
+        update(); // Update after click
     });
 
     buyGrandma.addEventListener('click', () => {
@@ -158,6 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
             grandmaCost = Math.ceil(grandmaCost * 1.15);
             new Audio('sounds/buy.mp3').play().catch(err => {});
             addGrandmaImage();
+            update(); // Update after purchase
         }
     });
 
@@ -168,6 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
             factoryCost = Math.ceil(factoryCost * 1.2);
             new Audio('sounds/buy.mp3').play().catch(err => {});
             addFactoryImage();
+            update(); // Update after purchase
         }
     });
 
@@ -183,6 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
         checkAchievement('gold1');
         activateGoldenCookieBonus();
         goldenCookie.classList.add('hidden');
+        update(); // Update after golden cookie bonus
     });
 
     // --- Achievement Logic ---
@@ -232,7 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- Golden Cookie Logic (omitted for brevity, but it's here)
+    // --- Golden Cookie Logic ---
     function setupGoldenCookie() {
         const minTime = 60 * 1000, maxTime = 180 * 1000;
         const randomTime = Math.random() * (maxTime - minTime) + minTime;
@@ -267,7 +270,8 @@ document.addEventListener('DOMContentLoaded', () => {
             calculateCPS();
             const reward = Math.min((cps / bonusMultiplier) * 900, count * 0.15) + 13;
             count += reward;
-            showBonusDisplay(`ラッキー！ +${Math.floor(reward)}クッキー`);
+            showBonusDisplay(`ラッキー！ +${Math.floor(reward).toLocaleString()}クッキー`);
+            update(); // Update after lucky bonus
             setTimeout(hideBonusDisplay, 4000);
         }
     }
@@ -288,12 +292,12 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let i = 0; i < factory; i++) addFactoryImage();
         updateAchievementList();
         setupGoldenCookie();
+        update(); // Initial update to display loaded values
     }
 
     // --- Game Loop ---
     setInterval(() => {
         produce();
-        update();
     }, 100);
     setInterval(saveGame, 30000);
 
