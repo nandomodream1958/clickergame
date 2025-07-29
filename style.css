@@ -1,7 +1,8 @@
 body {
     font-family: 'Helvetica Neue', sans-serif;
     text-align: center;
-    background-color: #f4f4f9;
+    background-color: #fdf2e2; /* Light cream */
+    background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' width='40' height='40'><text y='50' x='50' font-size='80'>🍪</text></svg>");
     color: #333;
 }
 
