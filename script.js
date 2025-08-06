@@ -33,20 +33,47 @@ document.addEventListener('DOMContentLoaded', () => {
     let factoryBaked = 0;
     let cps = 0;
     let bonusMultiplier = 1;
+    let goldenCookieClicks = 0; // Added for golden cookie achievements
 
     // --- Achievements (Master Definition) ---
     const achievements = {
-        'click1': { name: 'はじめの一歩', description: '初めてクッキーをクリックする', unlocked: false },
-        'click100': { name: 'クリッカーの卵', description: '100回クリックする', unlocked: false },
-        'bake1000': { name: 'クッキーベイカー', description: '合計で1,000枚のクッキーを焼く', unlocked: false },
-        'bake1M': { name: 'クッキー起業家', description: '合計で100万枚のクッキーを焼lく', unlocked: false },
-        'bake1B': { name: 'クッキー大君', description: '合計で1億枚のクッキーを焼く', unlocked: false },
-        'bake10B': { name: 'クッキー惑星', description: '合計で10億枚のクッキーを焼く', unlocked: false },
-        'bake100B': { name: 'クッキー銀河', description: '合計で100億枚のクッキーを焼く', unlocked: false },
-        'grandma1': { name: 'おばあちゃん登場', description: '初めておばあちゃんを雇う', unlocked: false },
-        'grandma10': { name: 'おばあちゃん軍団', description: 'おばあちゃんを10人雇う', unlocked: false },
-        'factory1': { name: '近代化', description: '初めて工場を建設する', unlocked: false },
-        'gold1': { name: '幸運', description: '初めてゴールデンクッキーをクリックする', unlocked: false },
+        // Click Achievements
+        'click1': { name: 'はじめの一歩', description: '初めてクッキーをクリックする', unlocked: false, category: 'click', difficulty: 'common' },
+        'click1000': { name: '指ならし', description: '1,000回クリックする', unlocked: false, category: 'click', difficulty: 'common' },
+        'click10000': { name: 'クリッカーの達人', description: '10,000回クリックする', unlocked: false, category: 'click', difficulty: 'uncommon' },
+        'click100000': { name: 'マウスクラッシャー', description: '100,000回クリックする', unlocked: false, category: 'click', difficulty: 'rare' },
+
+        // Baking Achievements
+        'bake1000': { name: 'クッキーベイカー', description: '合計で1,000枚のクッキーを焼く', unlocked: false, category: 'baking', difficulty: 'common' },
+        'bake250k': { name: 'ブロンズクッキー', description: '25万枚のクッキーを焼く', unlocked: false, category: 'baking', difficulty: 'common' },
+        'bake500k': { name: 'シルバークッキー', description: '50万枚のクッキーを焼く', unlocked: false, category: 'baking', difficulty: 'uncommon' },
+        'bake750k': { name: 'ゴールドクッキー', description: '75万枚のクッキーを焼く', unlocked: false, category: 'baking', difficulty: 'uncommon' },
+        'bake1M': { name: 'クッキー起業家', description: '合計で100万枚のクッキーを焼く', unlocked: false, category: 'baking', difficulty: 'rare' },
+        'bake2.5M': { name: 'プラチナクッキー', description: '250万枚のクッキーを焼く', unlocked: false, category: 'baking', difficulty: 'rare' },
+        'bake5M': { name: 'ダイヤモンドクッキー', description: '500万枚のクッキーを焼く', unlocked: false, category: 'baking', difficulty: 'rare' },
+        'bake25M': { name: 'クッキー男爵', description: '2500万枚のクッキーを焼く', unlocked: false, category: 'baking', difficulty: 'epic' },
+        'bake50M': { name: 'クッキー伯爵', description: '5000万枚のクッキーを焼く', unlocked: false, category: 'baking', difficulty: 'epic' },
+        'bake75M': { name: 'クッキー侯爵', description: '7500万枚のクッキーを焼く', unlocked: false, category: 'baking', difficulty: 'epic' },
+        'bake1B': { name: 'クッキー大君', description: '合計で1億枚のクッキーを焼く', unlocked: false, category: 'baking', difficulty: 'epic' },
+        'bake10B': { name: 'クッキー惑星', description: '合計で10億枚のクッキーを焼く', unlocked: false, category: 'baking', difficulty: 'epic' },
+        'bake100B': { name: 'クッキー銀河', description: '合計で100億枚のクッキーを焼く', unlocked: false, category: 'baking', difficulty: 'epic' },
+
+        // Building Achievements
+        'grandma1': { name: 'おばあちゃん登場', description: '初めておばあちゃんを雇う', unlocked: false, category: 'building', difficulty: 'common' },
+        'grandma10': { name: 'おばあちゃん部隊', description: 'おばあちゃんを10人雇う', unlocked: false, category: 'building', difficulty: 'uncommon' },
+        'grandma25': { name: 'おばあちゃん軍団', description: 'おばあちゃんを25人雇う', unlocked: false, category: 'building', difficulty: 'uncommon' },
+        'grandma50': { name: 'おばあちゃん帝国', description: 'おばあちゃんを50人雇う', unlocked: false, category: 'building', difficulty: 'rare' },
+        'grandma100': { name: 'グランマポカリプス', description: 'おばあちゃんを100人雇う', unlocked: false, category: 'building', difficulty: 'epic' },
+
+        'factory1': { name: '近代化', description: '初めて工場を建設する', unlocked: false, category: 'building', difficulty: 'common' },
+        'factory25': { name: '産業革命', description: '工場を25個建設する', unlocked: false, category: 'building', difficulty: 'rare' },
+        'factory50': { name: 'オートメーションの鬼', description: '工場を50個建設する', unlocked: false, category: 'building', difficulty: 'epic' },
+        'factory100': { name: 'クッキー製造国家', description: '工場を100個建設する', unlocked: false, category: 'building', difficulty: 'epic' },
+
+        // Special Achievements
+        'gold1': { name: '幸運の始まり', description: '初めてゴールデンクッキーをクリックする', unlocked: false, category: 'special', difficulty: 'uncommon' },
+        'gold10': { name: 'ラッキーコレクター', description: 'ゴールデンクッキーを10回クリックする', unlocked: false, category: 'special', difficulty: 'rare' },
+        'gold50': { name: '幸運の探求者', description: 'ゴールデンクッキーを50回クリックする', unlocked: false, category: 'special', difficulty: 'epic' },
     };
 
     // --- Core Game Logic ---
@@ -63,6 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
             factory = gameState.factory || 0;
             factoryCost = gameState.factoryCost || 1000;
             factoryBaked = gameState.factoryBaked || 0;
+            goldenCookieClicks = gameState.goldenCookieClicks || 0; // Load golden cookie clicks
 
             if (gameState.achievements) {
                 for (const id in achievements) {
@@ -76,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function saveGame() {
         const gameState = {
-            count, totalClicks, totalCookiesBaked, grandma, grandmaCost, grandmaBaked, factory, factoryCost, factoryBaked, achievements
+            count, totalClicks, totalCookiesBaked, grandma, grandmaCost, grandmaBaked, factory, factoryCost, factoryBaked, achievements, goldenCookieClicks
         };
         localStorage.setItem('clickerGameSave', JSON.stringify(gameState));
     }
@@ -114,20 +142,62 @@ document.addEventListener('DOMContentLoaded', () => {
         factoryCount.textContent = factory.toLocaleString();
         factoryBakedCount.textContent = Math.floor(factoryBaked).toLocaleString();
         buyFactory.textContent = `工場を建設する (コスト: ${Math.ceil(factoryCost).toLocaleString()})`;
+        updateGrandmaDisplay();
+        updateFactoryDisplay();
     }
 
-    function addGrandmaImage() {
-        const grandmaImg = document.createElement('img');
-        grandmaImg.src = 'images/grandma.png';
-        grandmaImg.classList.add('grandma-img');
-        grandmaContainer.appendChild(grandmaImg);
+    function updateGrandmaDisplay() {
+        grandmaContainer.innerHTML = '';
+        const groupsOfTen = Math.floor(grandma / 10);
+        const remainder = grandma % 10;
+
+        for (let i = 0; i < groupsOfTen; i++) {
+            const groupDiv = document.createElement('div');
+            groupDiv.classList.add('grandma-group');
+            const grandmaImg = document.createElement('img');
+            grandmaImg.src = 'images/grandma.png';
+            grandmaImg.classList.add('grandma-img');
+            const countSpan = document.createElement('span');
+            countSpan.classList.add('item-count');
+            countSpan.textContent = 'x10';
+            groupDiv.appendChild(grandmaImg);
+            groupDiv.appendChild(countSpan);
+            grandmaContainer.appendChild(groupDiv);
+        }
+
+        for (let i = 0; i < remainder; i++) {
+            const grandmaImg = document.createElement('img');
+            grandmaImg.src = 'images/grandma.png';
+            grandmaImg.classList.add('grandma-img');
+            grandmaContainer.appendChild(grandmaImg);
+        }
     }
 
-    function addFactoryImage() {
-        const factoryImg = document.createElement('img');
-        factoryImg.src = 'images/factory.png';
-        factoryImg.classList.add('factory-img');
-        factoryContainer.appendChild(factoryImg);
+    function updateFactoryDisplay() {
+        factoryContainer.innerHTML = '';
+        const groupsOfTen = Math.floor(factory / 10);
+        const remainder = factory % 10;
+
+        for (let i = 0; i < groupsOfTen; i++) {
+            const groupDiv = document.createElement('div');
+            groupDiv.classList.add('factory-group');
+            const factoryImg = document.createElement('img');
+            factoryImg.src = 'images/factory.png';
+            factoryImg.classList.add('factory-img');
+            const countSpan = document.createElement('span');
+            countSpan.classList.add('item-count');
+            countSpan.textContent = 'x10';
+            groupDiv.appendChild(factoryImg);
+            groupDiv.appendChild(countSpan);
+            factoryContainer.appendChild(groupDiv);
+        }
+
+        for (let i = 0; i < remainder; i++) {
+            const factoryImg = document.createElement('img');
+            factoryImg.src = 'images/factory.png';
+            factoryImg.classList.add('factory-img');
+            factoryContainer.appendChild(factoryImg);
+        }
     }
 
     function showPlusOne(e) {
@@ -157,7 +227,6 @@ document.addEventListener('DOMContentLoaded', () => {
             grandma++;
             grandmaCost = Math.ceil(grandmaCost * 1.15);
             new Audio('sounds/buy.mp3').play().catch(err => {});
-            addGrandmaImage();
             update(); // Update after purchase
         }
     });
@@ -168,7 +237,6 @@ document.addEventListener('DOMContentLoaded', () => {
             factory++;
             factoryCost = Math.ceil(factoryCost * 1.2);
             new Audio('sounds/buy.mp3').play().catch(err => {});
-            addFactoryImage();
             update(); // Update after purchase
         }
     });
@@ -182,6 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     goldenCookie.addEventListener('click', () => {
         new Audio('sounds/golden_click.mp3').play().catch(err => {});
+        goldenCookieClicks++; // Increment golden cookie clicks
         checkAchievement('gold1');
         activateGoldenCookieBonus();
         goldenCookie.classList.add('hidden');
@@ -196,15 +265,43 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function checkAchievements() {
-        if (totalClicks >= 100) checkAchievement('click100');
+        // Click achievements
+        if (totalClicks >= 1000) checkAchievement('click1000');
+        if (totalClicks >= 10000) checkAchievement('click10000');
+        if (totalClicks >= 100000) checkAchievement('click100000');
+
+        // Bake achievements
         if (totalCookiesBaked >= 1000) checkAchievement('bake1000');
+        if (totalCookiesBaked >= 250000) checkAchievement('bake250k');
+        if (totalCookiesBaked >= 500000) checkAchievement('bake500k');
+        if (totalCookiesBaked >= 750000) checkAchievement('bake750k');
         if (totalCookiesBaked >= 1000000) checkAchievement('bake1M');
+        if (totalCookiesBaked >= 2500000) checkAchievement('bake2.5M');
+        if (totalCookiesBaked >= 5000000) checkAchievement('bake5M');
+        if (totalCookiesBaked >= 25000000) checkAchievement('bake25M');
+        if (totalCookiesBaked >= 50000000) checkAchievement('bake50M');
+        if (totalCookiesBaked >= 75000000) checkAchievement('bake75M');
         if (totalCookiesBaked >= 100000000) checkAchievement('bake1B');
         if (totalCookiesBaked >= 1000000000) checkAchievement('bake10B');
         if (totalCookiesBaked >= 10000000000) checkAchievement('bake100B');
+
+        // Grandma achievements
         if (grandma >= 1) checkAchievement('grandma1');
         if (grandma >= 10) checkAchievement('grandma10');
+        if (grandma >= 25) checkAchievement('grandma25');
+        if (grandma >= 50) checkAchievement('grandma50');
+        if (grandma >= 100) checkAchievement('grandma100');
+
+        // Factory achievements
         if (factory >= 1) checkAchievement('factory1');
+        if (factory >= 25) checkAchievement('factory25');
+        if (factory >= 50) checkAchievement('factory50');
+        if (factory >= 100) checkAchievement('factory100');
+
+        // Golden cookie achievements
+        if (goldenCookieClicks >= 1) checkAchievement('gold1');
+        if (goldenCookieClicks >= 10) checkAchievement('gold10');
+        if (goldenCookieClicks >= 50) checkAchievement('gold50');
     }
 
     function unlockAchievement(id) {
@@ -214,7 +311,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function showAchievementToast(name) {
-        achievementToast.textContent = `実績解除: ${name}`;
+        achievementToast.textContent = `チャレンジ達成: ${name}`;
         achievementToast.classList.remove('hidden');
         achievementToast.classList.add('show');
         setTimeout(() => {
@@ -229,8 +326,13 @@ document.addEventListener('DOMContentLoaded', () => {
         for (const id in achievements) {
             const ach = achievements[id];
             const li = document.createElement('li');
-            li.textContent = `${ach.name}: ${ach.description}`;
-            if (ach.unlocked) li.classList.add('unlocked');
+            li.innerHTML = `<strong>${ach.name}</strong><br>${ach.description}`;
+            li.classList.add('achievement-item');
+            li.classList.add(`ach-category-${ach.category}`);
+            li.classList.add(`ach-difficulty-${ach.difficulty}`);
+            if (ach.unlocked) {
+                li.classList.add('unlocked');
+            }
             achievementList.appendChild(li);
         }
     }
@@ -288,8 +390,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Initialization ---
     function init() {
         loadGame();
-        for (let i = 0; i < grandma; i++) addGrandmaImage();
-        for (let i = 0; i < factory; i++) addFactoryImage();
         updateAchievementList();
         setupGoldenCookie();
         update(); // Initial update to display loaded values
